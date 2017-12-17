@@ -53,7 +53,6 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
 
     @Override
     public Object loadInBackground() {
-        Log.v(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()));
 
         switch (getId()) {
 
@@ -69,8 +68,27 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
                     e.printStackTrace();
                 }
 
-                cachedData = recipeResponse;
-                return recipeResponse;
+                AdapterReadyData adapterReadyData;
+
+                if (recipeResponse == null || !recipeResponse.isSuccessful()) {
+
+                    String code = recipeResponse != null ? String.valueOf(recipeResponse.code()) : "null";
+                    Log.e(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Failure -> " + code);
+                    adapterReadyData = new AdapterReadyData(ViewType.FAILURE_VIEW, null);
+
+                } else {
+
+                    Log.v(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Success");
+                    ArrayList<Recipe> recipeArrayList = recipeResponse.body();
+
+                    if (recipeArrayList == null || recipeArrayList.isEmpty())
+                        adapterReadyData = new AdapterReadyData(ViewType.EMPTY_VIEW, recipeArrayList);
+                    else
+                        adapterReadyData = new AdapterReadyData(ViewType.NORMAL_VIEW, recipeResponse.body());
+                }
+
+                cachedData = adapterReadyData;
+                return adapterReadyData;
         }
 
         return null;

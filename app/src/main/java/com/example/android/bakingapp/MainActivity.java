@@ -6,15 +6,10 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.example.android.bakingapp.model.Recipe;
-
-import java.util.ArrayList;
-
-import retrofit2.Response;
-
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private AdapterReadyData allRecipeData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +43,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             case MainAsyncTaskLoader.GET_ALL_RECIPES:
 
-                @SuppressWarnings("unchecked")
-                Response<ArrayList<Recipe>> recipeResponse = (Response<ArrayList<Recipe>>) data;
-                Log.d(LOG_TAG, "-> " + recipeResponse.body());
+                allRecipeData = (AdapterReadyData) data;
+                Log.v(LOG_TAG, "-> " + allRecipeData.viewType);
 
                 break;
         }
