@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
-    public static ViewType viewType;
+    public static int viewType;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -25,6 +25,12 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+
+        return ViewType.NORMAL_VIEW;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

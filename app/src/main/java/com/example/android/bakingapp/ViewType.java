@@ -4,6 +4,10 @@ package com.example.android.bakingapp;
  * Created by Hrishikesh Kadam on 18/12/2017
  */
 
-public enum ViewType {
-    LOADING_VIEW, NORMAL_VIEW, EMPTY_VIEW, FAILURE_VIEW
+public class ViewType {
+
+    public static final int LOADING_VIEW = 0;
+    public static final int NORMAL_VIEW = 1;
+    public static final int EMPTY_VIEW = 2;
+    public static final int FAILURE_VIEW = 3;
 }

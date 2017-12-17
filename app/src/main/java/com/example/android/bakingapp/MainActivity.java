@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case MainAsyncTaskLoader.GET_ALL_RECIPES:
 
                 allRecipeData = (AdapterReadyData) data;
-                Log.v(LOG_TAG, "-> " + allRecipeData.viewType);
+                Log.v(LOG_TAG, "-> " + allRecipeData.getViewTypeString());
 
                 break;
         }
