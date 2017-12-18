@@ -104,19 +104,13 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
                 NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
                 normalViewHolder.textViewMenu.setText(recipesList.get(position).getName());
 
-                if (TextUtils.isEmpty(recipesList.get(position).getImage())) {
+                String imageUrl = recipesList.get(position).getImage();
+                imageUrl = TextUtils.isEmpty(imageUrl) ? null : imageUrl;
 
-                    Picasso.with(context)
-                            .load(foodBlurredImages[position % foodBlurredImages.length])
-                            .into(normalViewHolder.imageViewMenu);
-
-                } else {
-                    Picasso.with(context)
-                            .load(recipesList.get(position).getImage())
-                            .placeholder(R.drawable.food_blurred_image_1)
-                            .error(R.drawable.food_blurred_image_1)
-                            .into(normalViewHolder.imageViewMenu);
-                }
+                Picasso.with(context)
+                        .load(imageUrl)
+                        .placeholder(foodBlurredImages[position % foodBlurredImages.length])
+                        .into(normalViewHolder.imageViewMenu);
 
                 break;
         }
