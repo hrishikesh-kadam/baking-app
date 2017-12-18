@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Hrishikesh Kadam on 17/12/2017
@@ -32,6 +33,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
             R.drawable.food_blurred_image_1, R.drawable.food_blurred_image_2,
             R.drawable.food_blurred_image_3, R.drawable.food_blurred_image_4,
             R.drawable.food_blurred_image_5, R.drawable.food_blurred_image_6};
+    private OnClickReloadListener onClickReloadListener;
 
     public MenuAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
@@ -48,6 +50,10 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         //noinspection unchecked
         recipesList = (ArrayList<Recipe>) adapterDataWrapper.data;
         notifyDataSetChanged();
+    }
+
+    public void setOnClickReloadListener(OnClickReloadListener onClickReloadListener) {
+        this.onClickReloadListener = onClickReloadListener;
     }
 
     @Override
@@ -130,6 +136,10 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         return dataViewType;
     }
 
+    public interface OnClickReloadListener {
+        public void onClickReload();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ViewHolder(View itemView) {
@@ -156,9 +166,18 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         @BindView(R.id.textViewFailureMessage)
         TextView textViewFailureMessage;
 
+        @BindView(R.id.imageViewReload)
+        ImageView imageViewReload;
+
         public FailureViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.imageViewReload)
+        public void onClickReload() {
+            Log.v(LOG_TAG, "-> FailureViewHolder -> imageViewReload -> onClickReload");
+            onClickReloadListener.onClickReload();
         }
     }
 

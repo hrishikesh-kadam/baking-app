@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageViewRefresh"
+        android:id="@+id/imageViewReload"
         android:layout_width="@dimen/progress_bar_dimen"
         android:layout_height="@dimen/progress_bar_dimen"
         android:layout_marginEnd="8dp"

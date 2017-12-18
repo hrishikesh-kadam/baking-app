@@ -14,13 +14,14 @@ import com.google.android.flexbox.JustifyContent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks,
+        MenuAdapter.OnClickReloadListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private AdapterDataWrapper menuAdapterDataWrapper;
-    private MenuAdapter menuAdapter;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    private AdapterDataWrapper menuAdapterDataWrapper;
+    private MenuAdapter menuAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         recyclerView.setLayoutManager(layoutManager);
 
         menuAdapter = new MenuAdapter(this, new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        menuAdapter.setOnClickReloadListener(this);
         recyclerView.setAdapter(menuAdapter);
 
         getSupportLoaderManager().initLoader(
@@ -72,5 +74,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader loader) {
         Log.v(LOG_TAG, "-> onLoaderReset -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()));
+    }
+
+    @Override
+    public void onClickReload() {
+        Log.v(LOG_TAG, "-> onClickReload");
+
+        menuAdapter.swapData(new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        getSupportLoaderManager().restartLoader(MainAsyncTaskLoader.GET_ALL_RECIPES, null, this);
     }
 }
