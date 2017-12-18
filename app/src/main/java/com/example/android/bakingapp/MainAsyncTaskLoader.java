@@ -68,27 +68,39 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
                     e.printStackTrace();
                 }
 
-                AdapterReadyData adapterReadyData;
+                AdapterDataWrapper adapterDataWrapper;
 
                 if (recipeResponse == null || !recipeResponse.isSuccessful()) {
 
                     String code = recipeResponse != null ? String.valueOf(recipeResponse.code()) : "null";
                     Log.e(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Failure -> " + code);
-                    adapterReadyData = new AdapterReadyData(ViewType.FAILURE_VIEW, null);
+                    adapterDataWrapper = new AdapterDataWrapper(ViewType.FAILURE_VIEW, null);
 
                 } else {
 
                     Log.v(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Success");
                     ArrayList<Recipe> recipeArrayList = recipeResponse.body();
 
+                    Log.w(LOG_TAG, "-> Uncomment extra data");
+                    recipeArrayList.add(recipeArrayList.get(0));
+                    recipeArrayList.add(recipeArrayList.get(1));
+                    recipeArrayList.add(recipeArrayList.get(2));
+                    recipeArrayList.add(recipeArrayList.get(3));
+                    recipeArrayList.add(recipeArrayList.get(0));
+                    recipeArrayList.add(recipeArrayList.get(1));
+                    recipeArrayList.add(recipeArrayList.get(2));
+                    recipeArrayList.add(recipeArrayList.get(3));
+                    recipeArrayList.add(recipeArrayList.get(0));
+                    recipeArrayList.add(recipeArrayList.get(1));
+
                     if (recipeArrayList == null || recipeArrayList.isEmpty())
-                        adapterReadyData = new AdapterReadyData(ViewType.EMPTY_VIEW, recipeArrayList);
+                        adapterDataWrapper = new AdapterDataWrapper(ViewType.EMPTY_VIEW, recipeArrayList);
                     else
-                        adapterReadyData = new AdapterReadyData(ViewType.NORMAL_VIEW, recipeResponse.body());
+                        adapterDataWrapper = new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipeResponse.body());
                 }
 
-                cachedData = adapterReadyData;
-                return adapterReadyData;
+                cachedData = adapterDataWrapper;
+                return adapterDataWrapper;
         }
 
         return null;

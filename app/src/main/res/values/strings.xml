@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Baking App</string>
+
+    <string name="failure_message">Something wen\'t wrong\n\nPlease try again</string>
+    <string name="empty_message_menu">No recipes found at the moment</string>
+
 </resources>

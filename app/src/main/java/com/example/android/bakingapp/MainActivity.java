@@ -4,12 +4,23 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private AdapterReadyData allRecipeData;
+    private AdapterDataWrapper menuAdapterDataWrapper;
+    private MenuAdapter menuAdapter;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +28,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Log.v(LOG_TAG, "-> onCreate");
 
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(this);
+        layoutManager.setFlexDirection(FlexDirection.ROW);
+        layoutManager.setJustifyContent(JustifyContent.CENTER);
+        recyclerView.setLayoutManager(layoutManager);
+
+        menuAdapter = new MenuAdapter(this, new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        recyclerView.setAdapter(menuAdapter);
 
         getSupportLoaderManager().initLoader(
                 MainAsyncTaskLoader.GET_ALL_RECIPES, null, this);
@@ -37,15 +57,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
-        Log.v(LOG_TAG, "-> onLoadFinished -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()));
 
         switch (loader.getId()) {
 
             case MainAsyncTaskLoader.GET_ALL_RECIPES:
 
-                allRecipeData = (AdapterReadyData) data;
-                Log.v(LOG_TAG, "-> " + allRecipeData.getViewTypeString());
-
+                menuAdapterDataWrapper = (AdapterDataWrapper) data;
+                Log.v(LOG_TAG, "-> onLoadFinished -> " + MainAsyncTaskLoader.getLoaderString(loader.getId()) + " -> " + menuAdapterDataWrapper.getViewTypeString());
+                menuAdapter.swapData(menuAdapterDataWrapper);
                 break;
         }
     }

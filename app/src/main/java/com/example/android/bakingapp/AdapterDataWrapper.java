@@ -7,13 +7,13 @@ import java.lang.reflect.Modifier;
  * Created by Hrishikesh Kadam on 17/12/2017
  */
 
-public class AdapterReadyData {
+public class AdapterDataWrapper {
 
-    public int viewType;
+    public int dataViewType;
     public Object data;
 
-    public AdapterReadyData(int viewType, Object data) {
-        this.viewType = viewType;
+    public AdapterDataWrapper(int dataViewType, Object data) {
+        this.dataViewType = dataViewType;
         this.data = data;
     }
 
@@ -37,7 +37,7 @@ public class AdapterReadyData {
 
                 }
 
-                if (tempViewType == viewType)
+                if (tempViewType == dataViewType)
                     return field.getName();
             }
         }
@@ -47,8 +47,8 @@ public class AdapterReadyData {
 
     @Override
     public String toString() {
-        return "AdapterReadyData { " +
-                "viewType = " + getViewTypeString() +
+        return "AdapterDataWrapper { " +
+                "dataViewType = " + getViewTypeString() +
                 ", data = " + data +
                 " }";
     }
