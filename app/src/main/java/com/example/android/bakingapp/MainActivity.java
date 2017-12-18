@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         layoutManager.setJustifyContent(JustifyContent.CENTER);
         recyclerView.setLayoutManager(layoutManager);
 
-        menuAdapter = new MenuAdapter(this, new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        menuAdapterDataWrapper = new AdapterDataWrapper(ViewType.LOADING_VIEW, null);
+        menuAdapter = new MenuAdapter(this, menuAdapterDataWrapper);
         menuAdapter.setOnClickReloadListener(this);
         recyclerView.setAdapter(menuAdapter);
 
@@ -80,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onClickReload() {
         Log.v(LOG_TAG, "-> onClickReload");
 
-        menuAdapter.swapData(new AdapterDataWrapper(ViewType.LOADING_VIEW, null));
+        menuAdapterDataWrapper = new AdapterDataWrapper(ViewType.LOADING_VIEW, null);
+        menuAdapter.swapData(menuAdapterDataWrapper);
         getSupportLoaderManager().restartLoader(MainAsyncTaskLoader.GET_ALL_RECIPES, null, this);
     }
 }
