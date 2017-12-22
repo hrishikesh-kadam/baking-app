@@ -4,21 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_background"
-    tools:context="com.example.android.bakingapp.MainActivity">
+    tools:context="com.example.android.bakingapp.DetailsActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recipeStepRecyclerView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:clipToPadding="false"
-        android:paddingBottom="6dp"
-        android:paddingTop="6dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/viewTopDivider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#888"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/recipeStepRecyclerView" />
 
 </android.support.constraint.ConstraintLayout>

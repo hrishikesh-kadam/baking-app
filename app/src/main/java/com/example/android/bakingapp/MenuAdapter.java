@@ -1,6 +1,7 @@
 package com.example.android.bakingapp;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,13 +35,17 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
             R.drawable.food_blurred_image_3, R.drawable.food_blurred_image_4,
             R.drawable.food_blurred_image_5, R.drawable.food_blurred_image_6};
     private OnClickReloadListener onClickReloadListener;
+    private OnClickMenuItemListener onClickMenuItemListener;
 
     public MenuAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
-        this.context = context;
+        this.context = context.getApplicationContext();
         dataViewType = adapterDataWrapper.dataViewType;
         //noinspection unchecked
         recipesList = (ArrayList<Recipe>) adapterDataWrapper.data;
+
+        onClickMenuItemListener = (OnClickMenuItemListener) context;
+        onClickReloadListener = (OnClickReloadListener) context;
     }
 
     public void swapData(AdapterDataWrapper adapterDataWrapper) {
@@ -50,10 +55,6 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         //noinspection unchecked
         recipesList = (ArrayList<Recipe>) adapterDataWrapper.data;
         notifyDataSetChanged();
-    }
-
-    public void setOnClickReloadListener(OnClickReloadListener onClickReloadListener) {
-        this.onClickReloadListener = onClickReloadListener;
     }
 
     @Override
@@ -130,8 +131,20 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         return dataViewType;
     }
 
+    public void setOnClickReloadListener(OnClickReloadListener onClickReloadListener) {
+        this.onClickReloadListener = onClickReloadListener;
+    }
+
+    public void setOnClickMenuItemListener(OnClickMenuItemListener onClickMenuItemListener) {
+        this.onClickMenuItemListener = onClickMenuItemListener;
+    }
+
     public interface OnClickReloadListener {
         public void onClickReload();
+    }
+
+    public interface OnClickMenuItemListener {
+        public void onClickMenuItem(Recipe recipe);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -153,6 +166,12 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+
+        @OnClick(R.id.cardView)
+        public void onClickCardView(CardView cardView) {
+            Log.v(LOG_TAG, "-> NormalViewHolder -> onClickCardView");
+            onClickMenuItemListener.onClickMenuItem(recipesList.get(getAdapterPosition()));
+        }
     }
 
     public class FailureViewHolder extends ViewHolder {
@@ -170,7 +189,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
         @OnClick(R.id.imageViewReload)
         public void onClickReload() {
-            Log.v(LOG_TAG, "-> FailureViewHolder -> imageViewReload -> onClickReload");
+            Log.v(LOG_TAG, "-> FailureViewHolder -> onClickReload");
             onClickReloadListener.onClickReload();
         }
     }

@@ -1,5 +1,6 @@
 package com.example.android.bakingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -7,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.example.android.bakingapp.model.Recipe;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
@@ -15,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks,
-        MenuAdapter.OnClickReloadListener {
+        MenuAdapter.OnClickReloadListener, MenuAdapter.OnClickMenuItemListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     @BindView(R.id.recyclerView)
@@ -38,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         menuAdapterDataWrapper = new AdapterDataWrapper(ViewType.LOADING_VIEW, null);
         menuAdapter = new MenuAdapter(this, menuAdapterDataWrapper);
-        menuAdapter.setOnClickReloadListener(this);
         recyclerView.setAdapter(menuAdapter);
 
         getSupportLoaderManager().initLoader(
@@ -84,5 +85,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         menuAdapterDataWrapper = new AdapterDataWrapper(ViewType.LOADING_VIEW, null);
         menuAdapter.swapData(menuAdapterDataWrapper);
         getSupportLoaderManager().restartLoader(MainAsyncTaskLoader.GET_ALL_RECIPES, null, this);
+    }
+
+    @Override
+    public void onClickMenuItem(Recipe recipe) {
+        Log.v(LOG_TAG, "-> onClickMenuItem");
+
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra("recipe", recipe);
+        startActivity(intent);
     }
 }

@@ -4,4 +4,6 @@
     <string name="failure_message">Something wen\'t wrong\n\nPlease try again</string>
     <string name="empty_message_menu">No recipes found at the moment</string>
 
+    <string name="recipe_ingredients">Recipe Ingredients</string>
+
 </resources>
