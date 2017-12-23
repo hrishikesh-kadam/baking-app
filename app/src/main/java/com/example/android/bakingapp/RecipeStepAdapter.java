@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.Step;
+import com.example.android.bakingapp.model.WhichStep;
 
 import java.util.ArrayList;
 
@@ -26,23 +27,26 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Vi
 
     private static final String LOG_TAG = RecipeStepAdapter.class.getSimpleName();
     private Context context;
-    private ArrayList<String> stepsArrayList = new ArrayList<>();
+    private ArrayList<WhichStep> whichStepsList = new ArrayList<>();
     private int dataViewType;
+    private OnClickStepListener onClickStepListener;
 
     public RecipeStepAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
 
         this.context = context.getApplicationContext();
+        onClickStepListener = (OnClickStepListener) context;
 
         Recipe recipe = (Recipe) adapterDataWrapper.data;
 
         ArrayList<Ingredient> ingredients = (ArrayList<Ingredient>) recipe.getIngredients();
         if (ingredients != null && !ingredients.isEmpty())
-            stepsArrayList.add(context.getString(R.string.recipe_ingredients));
+            whichStepsList.add(new WhichStep(context.getString(R.string.recipe_ingredients),
+                    "ingredients", 0));
 
         ArrayList<Step> steps = (ArrayList<Step>) recipe.getSteps();
         if (steps != null && !steps.isEmpty())
-            for (Step step : steps)
-                stepsArrayList.add(step.getShortDescription());
+            for (int i = 0; i < steps.size(); i++)
+                whichStepsList.add(new WhichStep(steps.get(i).getShortDescription(), "steps", i));
 
         dataViewType = adapterDataWrapper.dataViewType;
     }
@@ -60,13 +64,17 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
-        normalViewHolder.textViewStep.setText(stepsArrayList.get(position));
+        normalViewHolder.textViewStep.setText(whichStepsList.get(position).getShortDescription());
     }
 
     @Override
     public int getItemCount() {
 
-        return stepsArrayList.size();
+        return whichStepsList.size();
+    }
+
+    public interface OnClickStepListener {
+        public void onClickStep(WhichStep thisStep);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -89,7 +97,7 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Vi
         @OnClick(R.id.textViewStep)
         public void onClickStep(TextView textView) {
             Log.v(LOG_TAG, "-> onClickStep -> " + textView.getText());
-
+            onClickStepListener.onClickStep(whichStepsList.get(getAdapterPosition()));
         }
     }
 }

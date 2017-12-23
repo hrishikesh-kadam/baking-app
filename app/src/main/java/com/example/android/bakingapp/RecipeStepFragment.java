@@ -28,7 +28,7 @@ public class RecipeStepFragment extends Fragment {
         Log.v(LOG_TAG, "-> setAdapterDataWrapper");
 
         this.adapterDataWrapper = adapterDataWrapper;
-        recipeStepAdapter = new RecipeStepAdapter(getContext(), adapterDataWrapper);
+        recipeStepAdapter = new RecipeStepAdapter(getActivity(), adapterDataWrapper);
         recipeStepRecyclerView.setAdapter(recipeStepAdapter);
     }
 
