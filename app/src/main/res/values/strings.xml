@@ -6,4 +6,7 @@
 
     <string name="recipe_ingredients">Recipe Ingredients</string>
 
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
 </resources>

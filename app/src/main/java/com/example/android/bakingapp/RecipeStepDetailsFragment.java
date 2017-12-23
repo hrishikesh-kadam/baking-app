@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 public class RecipeStepDetailsFragment extends Fragment {
 
     private static final String LOG_TAG = RecipeStepDetailsFragment.class.getSimpleName();
+    private boolean isDualPane;
 
     public RecipeStepDetailsFragment() {
         Log.v(LOG_TAG, "-> Constructor");
@@ -24,8 +25,20 @@ public class RecipeStepDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.v(LOG_TAG, "-> onCreateView");
+        return inflater.inflate(R.layout.fragment_recipe_step_details, container, false);
+    }
 
-        View rootView = inflater.inflate(R.layout.fragment_recipe_step_details, container, false);
-        return rootView;
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.v(LOG_TAG, "-> onActivityCreated");
+
+        if (isDualPane) {
+
+        }
+    }
+
+    public void setDualPane(boolean isDualPane) {
+        this.isDualPane = isDualPane;
     }
 }

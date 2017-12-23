@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.WhichStep;
@@ -18,6 +19,8 @@ public class DetailsActivity extends AppCompatActivity
     private static final int SHOW = 1;
     private Recipe recipe;
     private boolean isDualPane;
+    private RecipeStepFragment recipeStepFragment;
+    private RecipeStepDetailsFragment recipeStepDetailsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,37 +29,90 @@ public class DetailsActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         isDualPane = findViewById(R.id.guideline) != null;
         Log.i(LOG_TAG, "-> onCreate -> isDualPane = " + isDualPane);
 
         recipe = getIntent().getParcelableExtra("recipe");
 
-        RecipeStepFragment recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_recipe_step);
-        recipeStepFragment.setAdapterDataWrapper(
-                new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
-
-        RecipeStepDetailsFragment recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_recipe_step_details);
+        initRecipeStepFragment();
+        initRecipeStepDetailsFragment();
 
         if (!isDualPane) {
-            setVisibility(recipeStepDetailsFragment, HIDE);
+            setVisibility(recipeStepDetailsFragment, HIDE, 0, 0);
+        } else {
+
         }
     }
 
-    private void setVisibility(Fragment fragment, int visibility) {
+    private void initRecipeStepFragment() {
+        Log.v(LOG_TAG, "-> initRecipeStepFragment");
+
+        recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_recipe_step);
+        recipeStepFragment.setAdapterDataWrapper(
+                new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
+    }
+
+    private void initRecipeStepDetailsFragment() {
+        Log.v(LOG_TAG, "-> initRecipeStepDetailsFragment");
+
+        recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_recipe_step_details);
+        recipeStepDetailsFragment.setDualPane(isDualPane);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case android.R.id.home:
+                Log.v(LOG_TAG, "-> home pressed");
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.v(LOG_TAG, "-> onBackPressed");
+
+        if (isDualPane) {
+            finish();
+        } else {
+
+            if (recipeStepDetailsFragment.isVisible()) {
+                setVisibility(recipeStepDetailsFragment, HIDE, 0, R.anim.slide_out_left_to_right);
+            } else {
+                finish();
+            }
+        }
+    }
+
+    private void setVisibility(Fragment fragment, int visibility,
+                               int enter, int exit) {
 
         switch (visibility) {
 
             case SHOW:
                 Log.v(LOG_TAG, "-> setVisibility -> fragment: " + fragment.getClass().getSimpleName() + ", visibility: SHOW");
-                getSupportFragmentManager().beginTransaction().show(fragment).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(enter, exit)
+                        .show(fragment).commit();
+
                 break;
 
             case HIDE:
                 Log.v(LOG_TAG, "-> setVisibility -> fragment: " + fragment.getClass().getSimpleName() + ", visibility: HIDE");
-                getSupportFragmentManager().beginTransaction().hide(fragment).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(enter, exit)
+                        .hide(fragment).commit();
                 break;
 
             default:
@@ -67,5 +123,11 @@ public class DetailsActivity extends AppCompatActivity
     @Override
     public void onClickStep(WhichStep thisStep) {
         Log.v(LOG_TAG, "-> onClickStep -> " + thisStep);
+
+        if (isDualPane) {
+
+        } else {
+            setVisibility(recipeStepDetailsFragment, SHOW, R.anim.slide_in_right_to_left, 0);
+        }
     }
 }
