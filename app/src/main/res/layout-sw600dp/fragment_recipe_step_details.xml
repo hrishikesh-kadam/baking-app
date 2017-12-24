@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground">
+    android:background="?android:colorBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:id="@+id/exoPlayerView"
@@ -20,7 +22,8 @@
         android:id="@+id/textViewDescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
         android:textAppearance="?android:textAppearanceMedium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

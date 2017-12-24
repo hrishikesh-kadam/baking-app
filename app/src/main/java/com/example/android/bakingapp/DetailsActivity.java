@@ -9,18 +9,23 @@ import android.view.MenuItem;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.WhichStep;
 
+import java.util.ArrayList;
+
 import butterknife.ButterKnife;
 
 public class DetailsActivity extends AppCompatActivity
-        implements RecipeStepAdapter.OnClickStepListener {
+        implements RecipeStepAdapter.OnClickStepListener,
+        RecipeStepAdapter.SetWhichStepListInterface {
 
     private static final String LOG_TAG = DetailsActivity.class.getSimpleName();
+    private static final String INGREDIENTS = "ingredients";
     private static final int HIDE = 0;
     private static final int SHOW = 1;
     private Recipe recipe;
     private boolean isDualPane;
     private RecipeStepFragment recipeStepFragment;
     private RecipeStepDetailsFragment recipeStepDetailsFragment;
+    private ArrayList<WhichStep> whichStepList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +56,7 @@ public class DetailsActivity extends AppCompatActivity
 
         recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_recipe_step);
-        recipeStepFragment.setAdapterDataWrapper(
-                new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
+        recipeStepFragment.setRecipe(recipe);
     }
 
     private void initRecipeStepDetailsFragment() {
@@ -61,6 +65,13 @@ public class DetailsActivity extends AppCompatActivity
         recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_recipe_step_details);
         recipeStepDetailsFragment.setDualPane(isDualPane);
+        recipeStepDetailsFragment.setRecipe(recipe);
+        recipeStepDetailsFragment.setWhichStepList(whichStepList);
+
+        if (whichStepList == null || whichStepList.size() == 0)
+            recipeStepDetailsFragment.onClickStep(-1);
+        else
+            recipeStepDetailsFragment.onClickStep(0);
     }
 
     @Override
@@ -86,7 +97,7 @@ public class DetailsActivity extends AppCompatActivity
         } else {
 
             if (recipeStepDetailsFragment.isVisible()) {
-                setVisibility(recipeStepDetailsFragment, HIDE, 0, R.anim.slide_out_left_to_right);
+                setVisibility(recipeStepDetailsFragment, HIDE, 0, R.anim.slide_out_top_to_bottom);
             } else {
                 finish();
             }
@@ -121,13 +132,21 @@ public class DetailsActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClickStep(WhichStep thisStep) {
-        Log.v(LOG_TAG, "-> onClickStep -> " + thisStep);
+    public void onClickStep(int index) {
+        Log.v(LOG_TAG, "-> onClickStep");
 
         if (isDualPane) {
 
         } else {
-            setVisibility(recipeStepDetailsFragment, SHOW, R.anim.slide_in_right_to_left, 0);
+            setVisibility(recipeStepDetailsFragment, SHOW, R.anim.slide_in_bottom_to_top, 0);
         }
+
+        recipeStepDetailsFragment.onClickStep(index);
+    }
+
+    @Override
+    public void setWhichStepList(ArrayList<WhichStep> whichStepList) {
+        Log.v(LOG_TAG, "-> setWhichStepList");
+        this.whichStepList = whichStepList;
     }
 }

@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.android.bakingapp.model.Recipe;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -17,18 +19,19 @@ public class RecipeStepFragment extends Fragment {
     private static final String LOG_TAG = RecipeStepFragment.class.getSimpleName();
     @BindView(R.id.recipeStepRecyclerView)
     RecyclerView recipeStepRecyclerView;
-    private AdapterDataWrapper adapterDataWrapper;
+    private Recipe recipe;
     private RecipeStepAdapter recipeStepAdapter;
 
     public RecipeStepFragment() {
         Log.v(LOG_TAG, "-> Constructor");
     }
 
-    public void setAdapterDataWrapper(AdapterDataWrapper adapterDataWrapper) {
-        Log.v(LOG_TAG, "-> setAdapterDataWrapper");
+    public void setRecipe(Recipe recipe) {
+        Log.v(LOG_TAG, "-> setRecipe");
 
-        this.adapterDataWrapper = adapterDataWrapper;
-        recipeStepAdapter = new RecipeStepAdapter(getActivity(), adapterDataWrapper);
+        this.recipe = recipe;
+        recipeStepAdapter = new RecipeStepAdapter(
+                getActivity(), new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
         recipeStepRecyclerView.setAdapter(recipeStepAdapter);
     }
 

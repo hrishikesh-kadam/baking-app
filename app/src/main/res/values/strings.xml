@@ -9,4 +9,11 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+    <string name="kilogram">kilogram</string>
+    <string name="gram">gram</string>
+    <string name="cup">cup</string>
+    <string name="tblsp">table spoon</string>
+    <string name="tsp">tea spoon</string>
+    <string name="oz">oz</string>
+
 </resources>
