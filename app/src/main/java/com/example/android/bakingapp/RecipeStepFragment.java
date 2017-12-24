@@ -1,6 +1,8 @@
 package com.example.android.bakingapp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,15 +28,6 @@ public class RecipeStepFragment extends Fragment {
         Log.v(LOG_TAG, "-> Constructor");
     }
 
-    public void setRecipe(Recipe recipe) {
-        Log.v(LOG_TAG, "-> setRecipe");
-
-        this.recipe = recipe;
-        recipeStepAdapter = new RecipeStepAdapter(
-                getActivity(), new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
-        recipeStepRecyclerView.setAdapter(recipeStepAdapter);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,4 +39,31 @@ public class RecipeStepFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(LOG_TAG, "-> onSaveInstanceState");
+
+        outState.putParcelable("recipe", recipe);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.v(LOG_TAG, "-> onActivityCreated");
+
+        if (savedInstanceState == null)
+            return;
+
+        setRecipe((Recipe) savedInstanceState.getParcelable("recipe"));
+    }
+
+    public void setRecipe(Recipe recipe) {
+        Log.v(LOG_TAG, "-> setRecipe");
+
+        this.recipe = recipe;
+        recipeStepAdapter = new RecipeStepAdapter(
+                getActivity(), new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
+        recipeStepRecyclerView.setAdapter(recipeStepAdapter);
+    }
 }

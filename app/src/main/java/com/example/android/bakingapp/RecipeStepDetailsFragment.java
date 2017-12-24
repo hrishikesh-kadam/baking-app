@@ -1,6 +1,7 @@
 package com.example.android.bakingapp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
@@ -59,6 +60,35 @@ public class RecipeStepDetailsFragment extends Fragment {
         ButterKnife.bind(this, rootView);
         textViewDescription.setMovementMethod(new ScrollingMovementMethod());
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(LOG_TAG, "-> onSaveInstanceState");
+
+        outState.putBoolean("isDualPane", isDualPane);
+        outState.putParcelable("recipe", recipe);
+        outState.putParcelableArrayList("whichStepList", whichStepList);
+        outState.putParcelable("thisStep", thisStep);
+        outState.putInt("indexWhichStep", indexWhichStep);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.v(LOG_TAG, "-> onActivityCreated");
+
+        if (savedInstanceState == null)
+            return;
+
+        isDualPane = savedInstanceState.getBoolean("isDualPane");
+        recipe = savedInstanceState.getParcelable("recipe");
+        whichStepList = savedInstanceState.getParcelableArrayList("whichStepList");
+        thisStep = savedInstanceState.getParcelable("thisStep");
+        indexWhichStep = savedInstanceState.getInt("indexWhichStep");
+
+        onClickStep(indexWhichStep);
     }
 
     public void setRecipe(Recipe recipe) {

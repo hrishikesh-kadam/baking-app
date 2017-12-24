@@ -18,7 +18,6 @@ public class DetailsActivity extends AppCompatActivity
         RecipeStepAdapter.SetWhichStepListInterface {
 
     private static final String LOG_TAG = DetailsActivity.class.getSimpleName();
-    private static final String INGREDIENTS = "ingredients";
     private static final int HIDE = 0;
     private static final int SHOW = 1;
     private Recipe recipe;
@@ -41,37 +40,62 @@ public class DetailsActivity extends AppCompatActivity
 
         recipe = getIntent().getParcelableExtra("recipe");
 
-        initRecipeStepFragment();
-        initRecipeStepDetailsFragment();
+        initRecipeStepFragment(savedInstanceState);
+        initRecipeStepDetailsFragment(savedInstanceState);
+    }
 
-        if (!isDualPane) {
-            setVisibility(recipeStepDetailsFragment, HIDE, 0, 0);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(LOG_TAG, "-> onSaveInstanceState");
+
+        getSupportFragmentManager()
+                .putFragment(outState, "recipeStepFragment", recipeStepFragment);
+
+        getSupportFragmentManager()
+                .putFragment(outState, "recipeStepDetailsFragment", recipeStepDetailsFragment);
+    }
+
+    private void initRecipeStepFragment(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "-> initRecipeStepFragment");
+
+        if (savedInstanceState == null) {
+
+            recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_recipe_step);
+            recipeStepFragment.setRecipe(recipe);
+
         } else {
 
+            recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "recipeStepFragment");
         }
     }
 
-    private void initRecipeStepFragment() {
-        Log.v(LOG_TAG, "-> initRecipeStepFragment");
-
-        recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_recipe_step);
-        recipeStepFragment.setRecipe(recipe);
-    }
-
-    private void initRecipeStepDetailsFragment() {
+    private void initRecipeStepDetailsFragment(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "-> initRecipeStepDetailsFragment");
 
-        recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_recipe_step_details);
-        recipeStepDetailsFragment.setDualPane(isDualPane);
-        recipeStepDetailsFragment.setRecipe(recipe);
-        recipeStepDetailsFragment.setWhichStepList(whichStepList);
+        if (savedInstanceState == null) {
 
-        if (whichStepList == null || whichStepList.size() == 0)
-            recipeStepDetailsFragment.onClickStep(-1);
-        else
-            recipeStepDetailsFragment.onClickStep(0);
+            recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_recipe_step_details);
+            recipeStepDetailsFragment.setDualPane(isDualPane);
+            recipeStepDetailsFragment.setRecipe(recipe);
+            recipeStepDetailsFragment.setWhichStepList(whichStepList);
+
+            if (whichStepList == null || whichStepList.size() == 0)
+                recipeStepDetailsFragment.onClickStep(-1);
+            else
+                recipeStepDetailsFragment.onClickStep(0);
+
+            if (!isDualPane)
+                setVisibility(recipeStepDetailsFragment, HIDE, 0, 0);
+
+        } else {
+
+            recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "recipeStepDetailsFragment");
+        }
     }
 
     @Override
@@ -135,11 +159,8 @@ public class DetailsActivity extends AppCompatActivity
     public void onClickStep(int index) {
         Log.v(LOG_TAG, "-> onClickStep");
 
-        if (isDualPane) {
-
-        } else {
+        if (!isDualPane)
             setVisibility(recipeStepDetailsFragment, SHOW, R.anim.slide_in_bottom_to_top, 0);
-        }
 
         recipeStepDetailsFragment.onClickStep(index);
     }
