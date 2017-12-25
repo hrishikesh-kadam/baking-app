@@ -1,5 +1,8 @@
 package com.example.android.bakingapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,6 +10,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -51,6 +57,7 @@ public class RecipeStepDetailsFragment extends Fragment
         implements LoaderManager.LoaderCallbacks, Player.EventListener {
 
     private static final String LOG_TAG = RecipeStepDetailsFragment.class.getSimpleName();
+    private static MediaSessionCompat mediaSession;
     @BindView(R.id.exoPlayerView)
     SimpleExoPlayerView exoPlayerView;
     @BindView(R.id.textViewDescription)
@@ -67,6 +74,7 @@ public class RecipeStepDetailsFragment extends Fragment
     View viewCustomNext;
     @BindView(R.id.exo_play)
     View viewExoPlay;
+    private PlaybackStateCompat.Builder stateBuilder;
     private boolean isDualPane;
     private Recipe recipe;
     private ArrayList<WhichStep> whichStepList;
@@ -115,6 +123,8 @@ public class RecipeStepDetailsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         Log.v(LOG_TAG, "-> onActivityCreated");
 
+        initializeMediaSession();
+
         if (savedInstanceState != null) {
 
             isDualPane = savedInstanceState.getBoolean("isDualPane");
@@ -133,6 +143,37 @@ public class RecipeStepDetailsFragment extends Fragment
             hasInstanceStateSaved = false;
 
         getLoaderManager().initLoader(ExoPlayerAsyncTaskLoader.GET_EXOPLAYER, null, this);
+    }
+
+    private void initializeMediaSession() {
+        Log.v(LOG_TAG, "-> initializeMediaSession");
+
+        // Create a MediaSessionCompat.
+        mediaSession = new MediaSessionCompat(getContext(), LOG_TAG);
+
+        // Enable callbacks from MediaButtons and TransportControls.
+        mediaSession.setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+        // Do not let MediaButtons restart the player when the app is not visible.
+        mediaSession.setMediaButtonReceiver(null);
+
+        // Set an initial PlaybackState with ACTION_PLAY, so media buttons can start the player.
+        stateBuilder = new PlaybackStateCompat.Builder()
+                .setActions(
+                        PlaybackStateCompat.ACTION_PLAY |
+                                PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                PlaybackStateCompat.ACTION_PLAY_PAUSE);
+
+        mediaSession.setPlaybackState(stateBuilder.build());
+
+        // MySessionCallback has methods that handle callbacks from a media controller.
+        mediaSession.setCallback(new MySessionCallback());
+
+        // Start the Media Session since the activity is active.
+        mediaSession.setActive(true);
     }
 
     public void onClickStep(int index) {
@@ -157,7 +198,7 @@ public class RecipeStepDetailsFragment extends Fragment
         if (exoPlayer != null)
             exoPlayer.removeListener(this);
 
-//        mediaSession.setActive(false);
+        mediaSession.setActive(false);
 
         exoPlayerView.setPlayer(null);
     }
@@ -464,6 +505,20 @@ public class RecipeStepDetailsFragment extends Fragment
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 
+        if ((playbackState == Player.STATE_READY) && playWhenReady) {
+            Log.v(LOG_TAG, "-> onPlayerStateChanged -> Play");
+
+            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+                    exoPlayer.getCurrentPosition(), 1f);
+
+        } else if ((playbackState == Player.STATE_READY)) {
+            Log.v(LOG_TAG, "-> onPlayerStateChanged -> Pause");
+
+            stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                    exoPlayer.getCurrentPosition(), 1f);
+        }
+
+        mediaSession.setPlaybackState(stateBuilder.build());
     }
 
     @Override
@@ -498,5 +553,46 @@ public class RecipeStepDetailsFragment extends Fragment
 
     public interface UpdateIndexCallbackInterface {
         public void updateIndex(int index);
+    }
+
+    /**
+     * Broadcast Receiver registered to receive the MEDIA_BUTTON intent coming from clients.
+     */
+    public static class MediaReceiver extends BroadcastReceiver {
+
+        public MediaReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            MediaButtonReceiver.handleIntent(mediaSession, intent);
+        }
+    }
+
+    /**
+     * Media Session Callbacks, where all external clients control the player.
+     */
+    private class MySessionCallback extends MediaSessionCompat.Callback {
+
+        @Override
+        public void onPlay() {
+            Log.v(LOG_TAG, "-> MySessionCallback -> onPlay");
+
+            if (viewExoPlay.isEnabled() && exoPlayer!=null)
+                exoPlayer.setPlayWhenReady(true);
+        }
+
+        @Override
+        public void onPause() {
+            Log.v(LOG_TAG, "-> MySessionCallback -> onPause");
+
+            if (viewExoPlay.isEnabled() && exoPlayer!=null)
+                exoPlayer.setPlayWhenReady(false);
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            Log.v(LOG_TAG, "-> MySessionCallback -> onSkipToPrevious");
+        }
     }
 }
