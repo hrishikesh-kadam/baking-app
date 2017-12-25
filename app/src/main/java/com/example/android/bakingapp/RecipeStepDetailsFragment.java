@@ -149,7 +149,7 @@ public class RecipeStepDetailsFragment extends Fragment
         Log.v(LOG_TAG, "-> initializeMediaSession");
 
         // Create a MediaSessionCompat.
-        mediaSession = new MediaSessionCompat(getContext(), LOG_TAG);
+        mediaSession = new MediaSessionCompat(getContext().getApplicationContext(), LOG_TAG);
 
         // Enable callbacks from MediaButtons and TransportControls.
         mediaSession.setFlags(
@@ -199,6 +199,8 @@ public class RecipeStepDetailsFragment extends Fragment
             exoPlayer.removeListener(this);
 
         mediaSession.setActive(false);
+        mediaSession.setCallback(null);
+        mediaSession.release();
 
         exoPlayerView.setPlayer(null);
     }
