@@ -1,9 +1,13 @@
 package com.example.android.bakingapp;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +18,22 @@ import android.widget.TextView;
 import com.example.android.bakingapp.model.Ingredient;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.model.WhichStep;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +47,8 @@ import butterknife.Optional;
  * Created by Hrishikesh Kadam on 23/12/2017
  */
 
-public class RecipeStepDetailsFragment extends Fragment {
+public class RecipeStepDetailsFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks, Player.EventListener {
 
     private static final String LOG_TAG = RecipeStepDetailsFragment.class.getSimpleName();
     @BindView(R.id.exoPlayerView)
@@ -41,11 +61,23 @@ public class RecipeStepDetailsFragment extends Fragment {
     @Nullable
     @BindView(R.id.viewFooterPrevious)
     View viewFooterPrevious;
+    @BindView(R.id.custom_prev)
+    View viewCustomPrev;
+    @BindView(R.id.custom_next)
+    View viewCustomNext;
+    @BindView(R.id.exo_play)
+    View viewExoPlay;
     private boolean isDualPane;
     private Recipe recipe;
     private ArrayList<WhichStep> whichStepList;
     private WhichStep thisStep;
     private int indexWhichStep;
+    private SimpleExoPlayer exoPlayer;
+    private DefaultDataSourceFactory dataSourceFactory;
+    private ExtractorsFactory extractorsFactory;
+    private String mediaUrl;
+    private boolean hasInstanceStateSaved;
+    private UpdateIndexCallbackInterface updateIndexCallback;
 
     public RecipeStepDetailsFragment() {
         Log.v(LOG_TAG, "-> Constructor");
@@ -56,6 +88,7 @@ public class RecipeStepDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.v(LOG_TAG, "-> onCreateView");
 
+        updateIndexCallback = (UpdateIndexCallbackInterface) getActivity();
         View rootView = inflater.inflate(R.layout.fragment_recipe_step_details, container, false);
         ButterKnife.bind(this, rootView);
         textViewDescription.setMovementMethod(new ScrollingMovementMethod());
@@ -72,6 +105,9 @@ public class RecipeStepDetailsFragment extends Fragment {
         outState.putParcelableArrayList("whichStepList", whichStepList);
         outState.putParcelable("thisStep", thisStep);
         outState.putInt("indexWhichStep", indexWhichStep);
+        outState.putBoolean("useController", exoPlayerView.getUseController());
+        outState.putBoolean("isViewExoPlayEnabled", viewExoPlay.isEnabled());
+        outState.putFloat("viewExoPlayAlpha", viewExoPlay.getAlpha());
     }
 
     @Override
@@ -79,16 +115,51 @@ public class RecipeStepDetailsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         Log.v(LOG_TAG, "-> onActivityCreated");
 
-        if (savedInstanceState == null)
-            return;
+        if (savedInstanceState != null) {
 
-        isDualPane = savedInstanceState.getBoolean("isDualPane");
-        recipe = savedInstanceState.getParcelable("recipe");
-        whichStepList = savedInstanceState.getParcelableArrayList("whichStepList");
-        thisStep = savedInstanceState.getParcelable("thisStep");
-        indexWhichStep = savedInstanceState.getInt("indexWhichStep");
+            isDualPane = savedInstanceState.getBoolean("isDualPane");
+            recipe = savedInstanceState.getParcelable("recipe");
+            whichStepList = savedInstanceState.getParcelableArrayList("whichStepList");
+            thisStep = savedInstanceState.getParcelable("thisStep");
+            indexWhichStep = savedInstanceState.getInt("indexWhichStep");
+            exoPlayerView.setUseController(savedInstanceState.getBoolean("useController"));
+            viewExoPlay.setEnabled(savedInstanceState.getBoolean("isViewExoPlayEnabled"));
+            viewExoPlay.setAlpha(savedInstanceState.getFloat("viewExoPlayAlpha"));
 
-        onClickStep(indexWhichStep);
+            onClickStep(indexWhichStep);
+            hasInstanceStateSaved = true;
+
+        } else
+            hasInstanceStateSaved = false;
+
+        getLoaderManager().initLoader(ExoPlayerAsyncTaskLoader.GET_EXOPLAYER, null, this);
+    }
+
+    public void onClickStep(int index) {
+        Log.v(LOG_TAG, "-> onClickStep");
+
+        indexWhichStep = index;
+        thisStep = whichStepList.get(indexWhichStep);
+        setVisibilityPreviousOrNext();
+        textViewDescription.setText(getDescription());
+
+        mediaUrl = getMediaUrl();
+        Log.d(LOG_TAG, "-> onClickStep -> " + mediaUrl);
+
+        if (exoPlayer != null)
+            playMediaUrl(mediaUrl);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (exoPlayer != null)
+            exoPlayer.removeListener(this);
+
+//        mediaSession.setActive(false);
+
+        exoPlayerView.setPlayer(null);
     }
 
     public void setRecipe(Recipe recipe) {
@@ -101,13 +172,17 @@ public class RecipeStepDetailsFragment extends Fragment {
         this.whichStepList = whichStepList;
     }
 
-    public void onClickStep(int index) {
-        Log.v(LOG_TAG, "-> onClickStep");
+    private String getMediaUrl() {
 
-        indexWhichStep = index;
-        thisStep = whichStepList.get(indexWhichStep);
-        setVisibilityPreviousOrNext();
-        textViewDescription.setText(getDescription());
+        switch (thisStep.getType()) {
+
+            case "steps":
+                String videoUrl = recipe.getSteps().get(thisStep.getIndex()).getVideoURL();
+                return TextUtils.isEmpty(videoUrl) ? "" : videoUrl;
+
+            default:
+                return "";
+        }
     }
 
     private String getDescription() {
@@ -181,17 +256,19 @@ public class RecipeStepDetailsFragment extends Fragment {
     }
 
     @Optional
-    @OnClick({R.id.viewFooterPrevious, R.id.viewFooterNext})
+    @OnClick({R.id.viewFooterPrevious, R.id.viewFooterNext, R.id.custom_prev, R.id.custom_next})
     public void onClickFooterPreviousOrNext(View view) {
 
         int i = indexWhichStep;
 
         switch (view.getId()) {
             case R.id.viewFooterPrevious:
+            case R.id.custom_prev:
                 Log.v(LOG_TAG, "-> onClickFooterPreviousOrNext -> viewFooterPrevious");
                 --i;
                 break;
             case R.id.viewFooterNext:
+            case R.id.custom_next:
                 Log.v(LOG_TAG, "-> onClickFooterPreviousOrNext -> viewFooterNext");
                 ++i;
                 break;
@@ -210,37 +287,216 @@ public class RecipeStepDetailsFragment extends Fragment {
             indexWhichStep = i;
         }
 
+        updateIndexCallback.updateIndex(indexWhichStep);
         onClickStep(indexWhichStep);
     }
 
     public void setVisibilityPreviousOrNext() {
         Log.v(LOG_TAG, "-> setVisibilityPreviousOrNext");
 
-        if (viewFooterPrevious == null || viewFooterNext == null)
-            return;
-
         if (whichStepList.size() <= 1) {
 
-            viewFooterPrevious.setVisibility(View.INVISIBLE);
-            viewFooterNext.setVisibility(View.INVISIBLE);
+            if (viewFooterPrevious != null)
+                viewFooterPrevious.setVisibility(View.INVISIBLE);
+            if (viewFooterNext != null)
+                viewFooterNext.setVisibility(View.INVISIBLE);
+
+            viewCustomPrev.setVisibility(View.INVISIBLE);
+            viewCustomNext.setVisibility(View.INVISIBLE);
 
         } else {
 
             if (indexWhichStep == 0) {
 
-                viewFooterPrevious.setVisibility(View.INVISIBLE);
-                viewFooterNext.setVisibility(View.VISIBLE);
+                if (viewFooterPrevious != null)
+                    viewFooterPrevious.setVisibility(View.INVISIBLE);
+                if (viewFooterNext != null)
+                    viewFooterNext.setVisibility(View.VISIBLE);
+
+                viewCustomPrev.setVisibility(View.INVISIBLE);
+                viewCustomNext.setVisibility(View.VISIBLE);
 
             } else if (indexWhichStep == whichStepList.size() - 1) {
 
-                viewFooterPrevious.setVisibility(View.VISIBLE);
-                viewFooterNext.setVisibility(View.INVISIBLE);
+                if (viewFooterPrevious != null)
+                    viewFooterPrevious.setVisibility(View.VISIBLE);
+                if (viewFooterNext != null)
+                    viewFooterNext.setVisibility(View.INVISIBLE);
+
+                viewCustomPrev.setVisibility(View.VISIBLE);
+                viewCustomNext.setVisibility(View.INVISIBLE);
 
             } else {
 
-                viewFooterPrevious.setVisibility(View.VISIBLE);
-                viewFooterNext.setVisibility(View.VISIBLE);
+                if (viewFooterPrevious != null)
+                    viewFooterPrevious.setVisibility(View.VISIBLE);
+                if (viewFooterNext != null)
+                    viewFooterNext.setVisibility(View.VISIBLE);
+
+                viewCustomPrev.setVisibility(View.VISIBLE);
+                viewCustomNext.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    private void initializePlayer() {
+        Log.v(LOG_TAG, "-> initializePlayer");
+
+        exoPlayerView.setPlayer(exoPlayer);
+        exoPlayerView.setControllerShowTimeoutMs(-1);
+        exoPlayerView.showController();
+
+        // Set the ExoPlayer.EventListener to this activity.
+        exoPlayer.addListener(this);
+
+        String userAgent = Util.getUserAgent(getContext(), getString(R.string.app_name));
+
+        // Default parameters, except allowCrossProtocolRedirects is true
+        DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
+                userAgent,
+                null,
+                DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+                DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+                true);
+
+        dataSourceFactory = new DefaultDataSourceFactory(
+                getContext(),
+                null,
+                httpDataSourceFactory);
+
+        extractorsFactory = new DefaultExtractorsFactory();
+    }
+
+    public void playMediaUrl(String url) {
+        Log.v(LOG_TAG, "-> playMediaUrl");
+
+        MediaSource mediaSource = new ExtractorMediaSource(
+                Uri.parse(url), dataSourceFactory, extractorsFactory, null, null);
+
+        exoPlayer.prepare(mediaSource);
+
+        if (url != null && !url.isEmpty()) {
+
+            viewExoPlay.setAlpha(1.0f);
+            viewExoPlay.setEnabled(true);
+            exoPlayer.setPlayWhenReady(true);
+
+        } else {
+            viewExoPlay.setAlpha(0.5f);
+            viewExoPlay.setEnabled(false);
+            exoPlayer.setPlayWhenReady(false);
+        }
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        Log.v(LOG_TAG, "-> onCreateLoader -> " + ExoPlayerAsyncTaskLoader.getLoaderString(id));
+
+        switch (id) {
+
+            case ExoPlayerAsyncTaskLoader.GET_EXOPLAYER:
+                return new ExoPlayerAsyncTaskLoader(getContext());
+
+            default:
+                throw new UnsupportedOperationException("-> Unknown loader id = " + id);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+
+        switch (loader.getId()) {
+
+            case ExoPlayerAsyncTaskLoader.GET_EXOPLAYER:
+
+                Log.v(LOG_TAG, "-> onLoadFinished -> " + ExoPlayerAsyncTaskLoader.getLoaderString(loader.getId()));
+                exoPlayer = (SimpleExoPlayer) data;
+                initializePlayer();
+                if (isDualPane && !hasInstanceStateSaved)
+                    playMediaUrl(mediaUrl);
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.v(LOG_TAG, "-> onLoaderReset -> " + ExoPlayerAsyncTaskLoader.getLoaderString(loader.getId()));
+
+        switch (loader.getId()) {
+
+            case ExoPlayerAsyncTaskLoader.GET_EXOPLAYER:
+
+                releasePlayer();
+                break;
+        }
+    }
+
+    private void releasePlayer() {
+        Log.v(LOG_TAG, "-> releasePlayer");
+
+        exoPlayer.stop();
+        exoPlayer.release();
+        exoPlayer = null;
+    }
+
+    public void hide() {
+        Log.v(LOG_TAG, "-> hide");
+
+        if (exoPlayer != null)
+            exoPlayer.stop();
+    }
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity(int reason) {
+
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    @Override
+    public void onSeekProcessed() {
+
+    }
+
+    public interface UpdateIndexCallbackInterface {
+        public void updateIndex(int index);
     }
 }

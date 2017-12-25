@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/exoPlayerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_weight="4" />
+
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/viewFooter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/exoPlayerView"
+        app:layout_constraintVertical_weight="4"
+        tools:text="3. Press the cookie crumb mixture into the prepared pie pan and bake for 12 minutes. Let crust cool to room temperature." />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/viewFooter"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:background="@color/colorPrimary"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDescription">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/viewFooterPrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/viewFooter"
+            app:layout_constraintStart_toStartOf="@id/viewFooter"
+            app:layout_constraintTop_toTopOf="@id/viewFooter">
+
+            <ImageView
+                android:id="@+id/imageViewPrevious"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="@drawable/ic_arrow_previous"
+                app:layout_constraintBottom_toBottomOf="@id/viewFooterPrevious"
+                app:layout_constraintStart_toStartOf="@id/viewFooterPrevious"
+                app:layout_constraintTop_toTopOf="@id/viewFooterPrevious" />
+
+            <TextView
+                android:id="@+id/textViewPrevious"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@string/previous"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="#FFF"
+                app:layout_constraintBottom_toBottomOf="@id/viewFooterPrevious"
+                app:layout_constraintEnd_toEndOf="@id/viewFooterPrevious"
+                app:layout_constraintStart_toEndOf="@id/imageViewPrevious"
+                app:layout_constraintTop_toTopOf="@id/viewFooterPrevious" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/viewFooterNext"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/viewFooter"
+            app:layout_constraintEnd_toEndOf="@id/viewFooter"
+            app:layout_constraintTop_toTopOf="@id/viewFooter">
+
+            <ImageView
+                android:id="@+id/imageViewNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="@drawable/ic_arrow_next"
+                app:layout_constraintBottom_toBottomOf="@id/viewFooterNext"
+                app:layout_constraintEnd_toEndOf="@id/viewFooterNext"
+                app:layout_constraintTop_toTopOf="@id/viewFooterNext" />
+
+            <TextView
+                android:id="@+id/textViewNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@string/next"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="#FFF"
+                app:layout_constraintBottom_toBottomOf="@id/viewFooterNext"
+                app:layout_constraintEnd_toStartOf="@id/imageViewNext"
+                app:layout_constraintStart_toStartOf="@id/viewFooterNext"
+                app:layout_constraintTop_toTopOf="@id/viewFooterNext" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

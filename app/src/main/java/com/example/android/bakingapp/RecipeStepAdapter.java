@@ -1,6 +1,8 @@
 package com.example.android.bakingapp;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,17 +28,23 @@ import butterknife.OnClick;
 public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.ViewHolder> {
 
     private static final String LOG_TAG = RecipeStepAdapter.class.getSimpleName();
+    private int selectedStepIndex;
     private Context context;
     private ArrayList<WhichStep> whichStepList = new ArrayList<>();
     private int dataViewType;
     private OnClickStepListener onClickStepListener;
     private SetWhichStepListInterface setWhichStepListInterface;
+    private boolean isDualPane;
+    private UpdateIndexInFragmentCallback updateIndexInFragmentCallback;
 
-    public RecipeStepAdapter(Context context, AdapterDataWrapper adapterDataWrapper) {
+    public RecipeStepAdapter(Fragment fragment, AdapterDataWrapper adapterDataWrapper, boolean isDualPane) {
 
-        this.context = context.getApplicationContext();
-        onClickStepListener = (OnClickStepListener) context;
-        setWhichStepListInterface = (SetWhichStepListInterface) context;
+        this.context = fragment.getContext().getApplicationContext();
+        onClickStepListener = (OnClickStepListener) fragment.getContext();
+        setWhichStepListInterface = (SetWhichStepListInterface) fragment.getContext();
+        updateIndexInFragmentCallback = (UpdateIndexInFragmentCallback) fragment;
+
+        this.isDualPane = isDualPane;
 
         Recipe recipe = (Recipe) adapterDataWrapper.data;
 
@@ -69,12 +77,30 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Vi
 
         NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
         normalViewHolder.textViewStep.setText(whichStepList.get(position).getShortDescription());
+
+        if (isDualPane && selectedStepIndex == position)
+            normalViewHolder.recipeStepItem.setBackgroundColor(
+                    ContextCompat.getColor(context, R.color.recipe_menu_item_selected));
+        else
+            normalViewHolder.recipeStepItem.setBackgroundColor(
+                    ContextCompat.getColor(context, R.color.recipe_menu_item_normal));
+    }
+
+    public void updateIndex(int index) {
+        Log.v(LOG_TAG, "-> updateIndex");
+
+        selectedStepIndex = index;
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
 
         return whichStepList.size();
+    }
+
+    public interface UpdateIndexInFragmentCallback {
+        public void updateIndexInFragment(int index);
     }
 
     public interface OnClickStepListener {
@@ -97,15 +123,22 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Vi
         @BindView(R.id.textViewStep)
         TextView textViewStep;
 
+        @BindView(R.id.recipeStepItem)
+        View recipeStepItem;
+
         public NormalViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        @OnClick(R.id.textViewStep)
-        public void onClickStep(TextView textView) {
-            Log.v(LOG_TAG, "-> onClickStep -> " + textView.getText());
-            onClickStepListener.onClickStep(getAdapterPosition());
+        @OnClick(R.id.recipeStepItem)
+        public void onClickStep(View view) {
+            Log.v(LOG_TAG, "-> onClickStep");
+
+            selectedStepIndex = getAdapterPosition();
+            updateIndexInFragmentCallback.updateIndexInFragment(selectedStepIndex);
+            notifyDataSetChanged();
+            onClickStepListener.onClickStep(selectedStepIndex);
         }
     }
 }

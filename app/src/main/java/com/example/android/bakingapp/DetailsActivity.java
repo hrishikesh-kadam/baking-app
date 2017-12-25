@@ -15,7 +15,8 @@ import butterknife.ButterKnife;
 
 public class DetailsActivity extends AppCompatActivity
         implements RecipeStepAdapter.OnClickStepListener,
-        RecipeStepAdapter.SetWhichStepListInterface {
+        RecipeStepAdapter.SetWhichStepListInterface,
+        RecipeStepDetailsFragment.UpdateIndexCallbackInterface {
 
     private static final String LOG_TAG = DetailsActivity.class.getSimpleName();
     private static final int HIDE = 0;
@@ -63,6 +64,7 @@ public class DetailsActivity extends AppCompatActivity
 
             recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_recipe_step);
+            recipeStepFragment.setDualPane(isDualPane);
             recipeStepFragment.setRecipe(recipe);
 
         } else {
@@ -121,7 +123,9 @@ public class DetailsActivity extends AppCompatActivity
         } else {
 
             if (recipeStepDetailsFragment.isVisible()) {
+
                 setVisibility(recipeStepDetailsFragment, HIDE, 0, R.anim.slide_out_top_to_bottom);
+                recipeStepDetailsFragment.hide();
             } else {
                 finish();
             }
@@ -169,5 +173,12 @@ public class DetailsActivity extends AppCompatActivity
     public void setWhichStepList(ArrayList<WhichStep> whichStepList) {
         Log.v(LOG_TAG, "-> setWhichStepList");
         this.whichStepList = whichStepList;
+    }
+
+    @Override
+    public void updateIndex(int index) {
+        Log.v(LOG_TAG, "-> updateIndex");
+
+        recipeStepFragment.updateIndex(index);
     }
 }

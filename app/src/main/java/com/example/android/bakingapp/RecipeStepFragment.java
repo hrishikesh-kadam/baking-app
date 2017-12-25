@@ -16,13 +16,16 @@ import com.example.android.bakingapp.model.Recipe;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class RecipeStepFragment extends Fragment {
+public class RecipeStepFragment extends Fragment
+        implements RecipeStepAdapter.UpdateIndexInFragmentCallback {
 
     private static final String LOG_TAG = RecipeStepFragment.class.getSimpleName();
     @BindView(R.id.recipeStepRecyclerView)
     RecyclerView recipeStepRecyclerView;
     private Recipe recipe;
     private RecipeStepAdapter recipeStepAdapter;
+    private boolean isDualPane;
+    private int selectedStepIndex;
 
     public RecipeStepFragment() {
         Log.v(LOG_TAG, "-> Constructor");
@@ -44,6 +47,8 @@ public class RecipeStepFragment extends Fragment {
         super.onSaveInstanceState(outState);
         Log.v(LOG_TAG, "-> onSaveInstanceState");
 
+        outState.putBoolean("isDualPane", isDualPane);
+        outState.putInt("selectedStepIndex", selectedStepIndex);
         outState.putParcelable("recipe", recipe);
     }
 
@@ -55,7 +60,22 @@ public class RecipeStepFragment extends Fragment {
         if (savedInstanceState == null)
             return;
 
+        isDualPane = savedInstanceState.getBoolean("isDualPane");
+        selectedStepIndex = savedInstanceState.getInt("selectedStepIndex");
         setRecipe((Recipe) savedInstanceState.getParcelable("recipe"));
+    }
+
+    public void setDualPane(boolean isDualPane) {
+        Log.v(LOG_TAG, "-> setDualPane");
+
+        this.isDualPane = isDualPane;
+    }
+
+    public void updateIndex(int index) {
+        Log.v(LOG_TAG, "-> updateIndex");
+
+        selectedStepIndex = index;
+        recipeStepAdapter.updateIndex(index);
     }
 
     public void setRecipe(Recipe recipe) {
@@ -63,7 +83,15 @@ public class RecipeStepFragment extends Fragment {
 
         this.recipe = recipe;
         recipeStepAdapter = new RecipeStepAdapter(
-                getActivity(), new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe));
+                this, new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipe), isDualPane);
+        recipeStepAdapter.updateIndex(selectedStepIndex);
         recipeStepRecyclerView.setAdapter(recipeStepAdapter);
+    }
+
+    @Override
+    public void updateIndexInFragment(int index) {
+        Log.v(LOG_TAG, "-> updateIndexInFragment");
+
+        selectedStepIndex = index;
     }
 }
