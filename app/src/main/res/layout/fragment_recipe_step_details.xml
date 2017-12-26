@@ -12,25 +12,33 @@
         android:id="@+id/exoPlayerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/textViewDescription"
+        android:background="#000"
+        app:layout_constraintBottom_toTopOf="@+id/scrollViewDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="4" />
 
-    <TextView
-        android:id="@+id/textViewDescription"
+    <ScrollView
+        android:id="@+id/scrollViewDescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:textAppearance="?android:textAppearanceMedium"
         app:layout_constraintBottom_toTopOf="@+id/viewFooter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/exoPlayerView"
-        app:layout_constraintVertical_weight="4"
-        tools:text="3. Press the cookie crumb mixture into the prepared pie pan and bake for 12 minutes. Let crust cool to room temperature." />
+        app:layout_constraintVertical_weight="4">
+
+        <TextView
+            android:id="@+id/textViewDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:textAppearance="?android:textAppearanceMedium"
+            tools:text="3. Press the cookie crumb mixture into the prepared pie pan and bake for 12 minutes. Let crust cool to room temperature." />
+
+    </ScrollView>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/viewFooter"
@@ -40,7 +48,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDescription">
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewDescription">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/viewFooterPrevious"

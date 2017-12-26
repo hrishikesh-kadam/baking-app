@@ -14,7 +14,6 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,7 +98,6 @@ public class RecipeStepDetailsFragment extends Fragment
         updateIndexCallback = (UpdateIndexCallbackInterface) getActivity();
         View rootView = inflater.inflate(R.layout.fragment_recipe_step_details, container, false);
         ButterKnife.bind(this, rootView);
-        textViewDescription.setMovementMethod(new ScrollingMovementMethod());
         return rootView;
     }
 

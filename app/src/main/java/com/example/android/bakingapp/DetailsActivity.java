@@ -40,6 +40,7 @@ public class DetailsActivity extends AppCompatActivity
         Log.i(LOG_TAG, "-> onCreate -> isDualPane = " + isDualPane);
 
         recipe = getIntent().getParcelableExtra("recipe");
+        getSupportActionBar().setTitle(recipe.getName());
 
         initRecipeStepFragment(savedInstanceState);
         initRecipeStepDetailsFragment(savedInstanceState);
