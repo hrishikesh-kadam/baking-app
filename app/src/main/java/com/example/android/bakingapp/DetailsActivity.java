@@ -46,42 +46,26 @@ public class DetailsActivity extends AppCompatActivity
         initRecipeStepDetailsFragment(savedInstanceState);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.v(LOG_TAG, "-> onSaveInstanceState");
-
-        getSupportFragmentManager()
-                .putFragment(outState, "recipeStepFragment", recipeStepFragment);
-
-        getSupportFragmentManager()
-                .putFragment(outState, "recipeStepDetailsFragment", recipeStepDetailsFragment);
-    }
-
     private void initRecipeStepFragment(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "-> initRecipeStepFragment");
 
-        if (savedInstanceState == null) {
+        recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_recipe_step);
 
-            recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_recipe_step);
+        if (savedInstanceState == null) {
             recipeStepFragment.setDualPane(isDualPane);
             recipeStepFragment.setRecipe(recipe);
-
-        } else {
-
-            recipeStepFragment = (RecipeStepFragment) getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "recipeStepFragment");
         }
     }
 
     private void initRecipeStepDetailsFragment(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "-> initRecipeStepDetailsFragment");
 
+        recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_recipe_step_details);
+
         if (savedInstanceState == null) {
 
-            recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_recipe_step_details);
             recipeStepDetailsFragment.setDualPane(isDualPane);
             recipeStepDetailsFragment.setRecipe(recipe);
             recipeStepDetailsFragment.setWhichStepList(whichStepList);
@@ -93,11 +77,6 @@ public class DetailsActivity extends AppCompatActivity
 
             if (!isDualPane)
                 setVisibility(recipeStepDetailsFragment, HIDE, 0, 0);
-
-        } else {
-
-            recipeStepDetailsFragment = (RecipeStepDetailsFragment) getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "recipeStepDetailsFragment");
         }
     }
 
