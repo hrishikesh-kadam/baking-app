@@ -5,16 +5,14 @@
 Android Developer Nanodegree - 3rd Project - Baking App
 
 
-### Screenshots
-
-##### Mobile
+### Mobile Screenshots
 
 <img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/mobile/mobile_1.png" width="240" height="426">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/mobile/mobile_2.png" width="240" height="426"><br/><br/><br/>
 <img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/mobile/mobile_3.png" width="240" height="426">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/mobile/mobile_4.png" width="240" height="426">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/mobile/mobile_4.png" width="240" height="426"><br/><br/><br/>
 
-##### Tablet
+### Tablet Screenshots
 
 <img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/tablet/tablet_1.png" width="426" height="266"><br/><br/><br/>
 <img src="https://github.com/hrishikesh-kadam/baking-app/raw/master/screenshots/tablet/tablet_2.png" width="426" height="266"><br/><br/><br/>
