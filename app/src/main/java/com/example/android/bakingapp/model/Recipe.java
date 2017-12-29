@@ -29,6 +29,7 @@ public class Recipe implements Parcelable {
     @SerializedName("id")
     @Expose
     private Integer id;
+    private Long localDbId;
     @SerializedName("name")
     @Expose
     private String name;
@@ -47,6 +48,7 @@ public class Recipe implements Parcelable {
 
     protected Recipe(Parcel in) {
         this.id = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.localDbId = (Long) in.readValue((Long.class.getClassLoader()));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
         in.readList(this.ingredients, (Ingredient.class.getClassLoader()));
         in.readList(this.steps, (Step.class.getClassLoader()));
@@ -55,6 +57,14 @@ public class Recipe implements Parcelable {
     }
 
     public Recipe() {
+    }
+
+    public Long getLocalDbId() {
+        return localDbId;
+    }
+
+    public void setLocalDbId(Long localDbId) {
+        this.localDbId = localDbId;
     }
 
     public Integer getId() {
@@ -107,6 +117,7 @@ public class Recipe implements Parcelable {
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(id);
+        dest.writeValue(localDbId);
         dest.writeValue(name);
         dest.writeList(ingredients);
         dest.writeList(steps);
@@ -122,6 +133,7 @@ public class Recipe implements Parcelable {
     public String toString() {
         return "Recipe{" +
                 "id=" + id +
+                ", localDbId=" + localDbId +
                 ", name='" + name + '\'' +
                 ", ingredients=" + ingredients +
                 ", steps=" + steps +

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.example.android.bakingapp.data.RecipeContract.RecipeEntry;
 import com.example.android.bakingapp.model.Recipe;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         switch (id) {
 
             case MainAsyncTaskLoader.GET_ALL_RECIPES:
+
+                getContentResolver().delete(RecipeEntry.CONTENT_URI, null, null);
                 return new MainAsyncTaskLoader(this);
         }
 

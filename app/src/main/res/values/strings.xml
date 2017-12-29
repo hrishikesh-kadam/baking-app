@@ -16,4 +16,13 @@
     <string name="tsp">tea spoon</string>
     <string name="oz">oz</string>
 
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+
+    <string name="choose_recipe">Choose Recipe</string>
+    <string name="choose_recipe_activity">Choose a recipe to see it\'s ingredient list in widget</string>
+    <string name="empty_recipe_table">No recipes locally stored</string>
+    <string name="recipe_ingredients_list">Recipe Ingredients List</string>
+    <string name="holder_ingredients_list">%s Ingredients List</string>
+
 </resources>

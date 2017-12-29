@@ -1,12 +1,15 @@
 package com.example.android.bakingapp;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
+import com.example.android.bakingapp.data.RecipeContract.RecipeEntry;
 import com.example.android.bakingapp.model.Recipe;
 import com.example.android.bakingapp.rest.RetrofitSingleton;
 import com.example.android.bakingapp.rest.WebServices;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,22 +84,28 @@ public class MainAsyncTaskLoader extends AsyncTaskLoader {
                     Log.v(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Success");
                     ArrayList<Recipe> recipeArrayList = recipeResponse.body();
 
-                    Log.w(LOG_TAG, "-> Uncomment extra data");
-                    recipeArrayList.add(recipeArrayList.get(0));
-                    recipeArrayList.add(recipeArrayList.get(1));
-                    recipeArrayList.add(recipeArrayList.get(2));
-                    recipeArrayList.add(recipeArrayList.get(3));
-                    recipeArrayList.add(recipeArrayList.get(0));
-                    recipeArrayList.add(recipeArrayList.get(1));
-                    recipeArrayList.add(recipeArrayList.get(2));
-                    recipeArrayList.add(recipeArrayList.get(3));
-                    recipeArrayList.add(recipeArrayList.get(0));
-                    recipeArrayList.add(recipeArrayList.get(1));
-
                     if (recipeArrayList == null || recipeArrayList.isEmpty())
                         adapterDataWrapper = new AdapterDataWrapper(ViewType.EMPTY_VIEW, recipeArrayList);
-                    else
-                        adapterDataWrapper = new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipeResponse.body());
+
+                    else {
+                        adapterDataWrapper = new AdapterDataWrapper(ViewType.NORMAL_VIEW, recipeArrayList);
+
+                        ArrayList<ContentValues> valuesArrayList = new ArrayList<>();
+                        Gson gson = new Gson();
+
+                        for (Recipe recipe : recipeArrayList) {
+                            ContentValues value = new ContentValues();
+                            value.put(RecipeEntry.COLUMN_JSON, gson.toJson(recipe));
+                            valuesArrayList.add(value);
+                        }
+
+                        ContentValues[] values = new ContentValues[valuesArrayList.size()];
+                        valuesArrayList.toArray(values);
+
+                        int noOfRowsInserted = getContext().getContentResolver()
+                                .bulkInsert(RecipeEntry.CONTENT_URI, values);
+                        Log.v(LOG_TAG, "-> loadInBackground -> " + getLoaderString(getId()) + " -> Success -> noOfRowsInserted = " + noOfRowsInserted);
+                    }
                 }
 
                 cachedData = adapterDataWrapper;
